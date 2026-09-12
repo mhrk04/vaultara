@@ -153,5 +153,22 @@ export function useDrive() {
     [walletClient, publicClient, loadFiles],
   );
 
-  return { files, loading, configured, uploadFile, downloadFile, deleteFile, reload: loadFiles };
+  /**
+   * Owner-only: recover a file's raw AES key + IV so it can be wrapped for a
+   * recipient during sharing. Unwraps the owner's own key record.
+   */
+  const getFileRawKeyAndIv = useCallback(
+    async (f: DriveFile): Promise<{ rawKey: Uint8Array; fileIvHex: string }> => {
+      const keyRecordId = typeof localStorage !== "undefined" ? localStorage.getItem(`keyrec:${f.cid}`) : null;
+      if (!keyRecordId) throw new Error("Key record not found on this device (upload was on another device)");
+      const keyRecord = await storage.getJson<KeyRecord>(keyRecordId);
+      const signature = await signMessageAsync({ message: ownerKeyMessage });
+      const ownerKey = await deriveOwnerKey(signature);
+      const rawKey = await unwrapUnderOwnerKey(ownerKey, keyRecord.ownerWrap.iv, keyRecord.ownerWrap.data);
+      return { rawKey, fileIvHex: keyRecord.fileIv };
+    },
+    [storage, signMessageAsync],
+  );
+
+  return { files, loading, configured, uploadFile, downloadFile, deleteFile, getFileRawKeyAndIv, reload: loadFiles };
 }

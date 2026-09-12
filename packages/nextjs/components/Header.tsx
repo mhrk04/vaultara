@@ -1,20 +1,39 @@
 "use client";
 
-import { useAccount, useConnect, useDisconnect, useChainId, useSwitchChain } from "wagmi";
+import { useAccount, useChainId, useSwitchChain, useConnect, useDisconnect } from "wagmi";
+import { usePrivy } from "@privy-io/react-auth";
 import { HardDrive, Wallet, LogOut, AlertTriangle } from "lucide-react";
 import { Button } from "~~/components/ui/Button";
 import { shortenAddress } from "~~/lib/format";
 import { ACTIVE_CHAIN } from "~~/lib/wagmi";
 
+const PRIVY_ENABLED = !!process.env.NEXT_PUBLIC_PRIVY_APP_ID;
+
 export function Header() {
   const { address, isConnected } = useAccount();
-  const { connect, connectors, isPending } = useConnect();
-  const { disconnect } = useDisconnect();
   const chainId = useChainId();
   const { switchChain, isPending: switching } = useSwitchChain();
 
+  // Injected fallback (used when Privy is not configured)
+  const { connect, connectors, isPending: connecting } = useConnect();
+  const { disconnect } = useDisconnect();
+
+  // Privy (used when configured)
+  const privy = usePrivySafe();
+
   const wrongNetwork = isConnected && chainId !== ACTIVE_CHAIN.id;
-  const injected = connectors[0];
+
+  const handleConnect = () => {
+    if (PRIVY_ENABLED && privy) privy.login();
+    else if (connectors[0]) connect({ connector: connectors[0] });
+  };
+  const handleDisconnect = () => {
+    if (PRIVY_ENABLED && privy) privy.logout();
+    else disconnect();
+  };
+
+  const connected = PRIVY_ENABLED && privy ? privy.authenticated : isConnected;
+  const busy = PRIVY_ENABLED && privy ? !privy.ready : connecting;
 
   return (
     <header className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur">
@@ -31,23 +50,35 @@ export function Header() {
               Switch to {ACTIVE_CHAIN.name}
             </Button>
           )}
-          {isConnected ? (
+          {connected ? (
             <>
-              <span className="hidden rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-300 sm:inline">
-                {shortenAddress(address)}
-              </span>
-              <Button variant="ghost" onClick={() => disconnect()} aria-label="Disconnect">
+              {address && (
+                <span className="hidden rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-300 sm:inline">
+                  {shortenAddress(address)}
+                </span>
+              )}
+              <Button variant="ghost" onClick={handleDisconnect} aria-label="Disconnect">
                 <LogOut className="h-4 w-4" />
               </Button>
             </>
           ) : (
-            <Button loading={isPending} onClick={() => injected && connect({ connector: injected })}>
+            <Button loading={busy} onClick={handleConnect}>
               <Wallet className="h-4 w-4" />
-              Connect Wallet
+              {PRIVY_ENABLED ? "Log in" : "Connect Wallet"}
             </Button>
           )}
         </div>
       </div>
     </header>
   );
+}
+
+/** usePrivy throws if no PrivyProvider is mounted; guard it for the fallback path. */
+function usePrivySafe() {
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return usePrivy();
+  } catch {
+    return null;
+  }
 }

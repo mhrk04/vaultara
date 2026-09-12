@@ -68,9 +68,15 @@ export const localStorageAdapter: StorageAdapter = {
 };
 
 /**
- * Chooses the storage adapter. During M3 we always use the local adapter.
- * In M4 this will return a Pinata-backed adapter when PINATA_JWT is configured.
+ * Chooses the storage adapter. Uses real Pinata/IPFS when a gateway is
+ * configured (M4+), else the local dev adapter (M3, no external keys).
  */
 export function getStorage(): StorageAdapter {
+  // Lazy import so the local adapter still works in Node tests without env.
+  if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_PINATA_GATEWAY) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { pinataStorage } = require("./pinataStorage") as typeof import("./pinataStorage");
+    return pinataStorage;
+  }
   return localStorageAdapter;
 }
