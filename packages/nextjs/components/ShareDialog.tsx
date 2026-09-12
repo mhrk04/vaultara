@@ -61,8 +61,8 @@ export function ShareDialog({ file, getFileRawKeyAndIv, onClose }: Props) {
     }
     setSharing(true);
     try {
-      const { rawKey } = await getFileRawKeyAndIv(file);
-      await shareFile(file.fileId, resolved, rawKey);
+      const { rawKey, fileIvHex } = await getFileRawKeyAndIv(file);
+      await shareFile(file.fileId, resolved, rawKey, fileIvHex);
       push("success", `Shared with ${recipient}`);
       setRecipient("");
       await loadGrants();

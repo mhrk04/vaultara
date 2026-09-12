@@ -2,10 +2,31 @@
 
 import { useAccount, useChainId, useSwitchChain, useConnect, useDisconnect } from "wagmi";
 import { usePrivy } from "@privy-io/react-auth";
-import { HardDrive, Wallet, LogOut, AlertTriangle } from "lucide-react";
+import { useState } from "react";
+import { HardDrive, Wallet, LogOut, AlertTriangle, Copy, Check } from "lucide-react";
 import { Button } from "~~/components/ui/Button";
 import { shortenAddress } from "~~/lib/format";
 import { ACTIVE_CHAIN } from "~~/lib/wagmi";
+
+/** Address chip with a copy button — handy for email logins whose address isn't obvious. */
+function CopyAddress({ address }: { address: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    await navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+  return (
+    <button
+      onClick={copy}
+      title="Copy address"
+      className="hidden items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-300 hover:border-zinc-600 hover:text-zinc-100 sm:inline-flex"
+    >
+      {shortenAddress(address)}
+      {copied ? <Check className="h-3.5 w-3.5 text-granted" /> : <Copy className="h-3.5 w-3.5 text-zinc-500" />}
+    </button>
+  );
+}
 
 const PRIVY_ENABLED = !!process.env.NEXT_PUBLIC_PRIVY_APP_ID;
 
@@ -52,11 +73,7 @@ export function Header() {
           )}
           {connected ? (
             <>
-              {address && (
-                <span className="hidden rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-300 sm:inline">
-                  {shortenAddress(address)}
-                </span>
-              )}
+              {address && <CopyAddress address={address} />}
               <Button variant="ghost" onClick={handleDisconnect} aria-label="Disconnect">
                 <LogOut className="h-4 w-4" />
               </Button>

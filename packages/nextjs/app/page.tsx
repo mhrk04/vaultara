@@ -8,6 +8,7 @@ import { UploadZone } from "~~/components/UploadZone";
 import { FileCard } from "~~/components/FileCard";
 import { ShareDialog } from "~~/components/ShareDialog";
 import { AccessLog } from "~~/components/AccessLog";
+import { SharedWithMe } from "~~/components/SharedWithMe";
 import { EmptyState } from "~~/components/ui/EmptyState";
 import { FileCardSkeleton } from "~~/components/ui/Skeleton";
 import { Button } from "~~/components/ui/Button";
@@ -101,6 +102,9 @@ export default function Home() {
                   ))}
                 </div>
               )}
+
+              {/* Files others have shared with this account */}
+              <SharedWithMe />
             </div>
 
             {/* Right: live access log (headline) */}

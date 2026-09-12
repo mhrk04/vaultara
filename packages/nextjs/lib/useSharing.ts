@@ -51,14 +51,15 @@ export function useSharing() {
    * @param rawFileKey the file's AES key (owner obtains this by unwrapping their own record)
    */
   const shareFile = useCallback(
-    async (fileId: bigint, recipient: `0x${string}`, rawFileKey: Uint8Array) => {
+    async (fileId: bigint, recipient: `0x${string}`, rawFileKey: Uint8Array, fileIvHex: string) => {
       if (!walletClient) throw new Error("connect a wallet");
       const recipientPub = await lookupPubkey(recipient);
       if (!recipientPub) {
         throw new Error("Recipient hasn't published a sharing key yet. Ask them to open the app and click 'Enable sharing'.");
       }
       const envelope = await wrapKeyForRecipient(recipientPub, rawFileKey);
-      const wrappedKeyCid = await storage.putJson(envelope);
+      // Bundle the file IV so the recipient can decrypt without the owner's key record.
+      const wrappedKeyCid = await storage.putJson({ ...envelope, fileIv: fileIvHex });
 
       const hash = await walletClient.writeContract({
         address: DRIVE_REGISTRY_ADDRESS as `0x${string}`,
@@ -87,12 +88,12 @@ export function useSharing() {
 
   /** Recipient path: fetch envelope by CID, unwrap, fetch ciphertext, decrypt, download. */
   const openSharedFile = useCallback(
-    async (opts: { cid: string; wrappedKeyCid: string; fileIvHex: string; name: string }) => {
+    async (opts: { cid: string; wrappedKeyCid: string; name: string }) => {
       const kp = await getMyKeypair();
-      const envelope = await storage.getJson<Envelope>(opts.wrappedKeyCid);
+      const envelope = await storage.getJson<Envelope & { fileIv: string }>(opts.wrappedKeyCid);
       const rawKey = await unwrapKeyAsRecipient(kp.privHex, envelope);
       const ciphertext = await storage.getBytes(opts.cid);
-      const plaintext = await decryptBytes(ciphertext, rawKey, hexToBytes(opts.fileIvHex));
+      const plaintext = await decryptBytes(ciphertext, rawKey, hexToBytes(envelope.fileIv));
 
       const blob = new Blob([plaintext]);
       const url = URL.createObjectURL(blob);

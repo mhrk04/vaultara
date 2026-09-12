@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAccount, usePublicClient, useWalletClient, useSignMessage } from "wagmi";
 import { driveRegistryAbi, DRIVE_REGISTRY_ADDRESS, isContractConfigured } from "~~/lib/contract";
+import { readClient } from "~~/lib/readClient";
 import { encryptBytes, decryptBytes } from "~~/lib/crypto";
 import { getStorage } from "~~/lib/storage";
 import { deriveOwnerKey, ownerKeyMessage, wrapUnderOwnerKey, unwrapUnderOwnerKey, bytesToHex, hexToBytes } from "~~/lib/ownerKey";
@@ -35,13 +36,13 @@ export function useDrive() {
   const configured = isContractConfigured();
 
   const loadFiles = useCallback(async () => {
-    if (!address || !publicClient || !configured) {
+    if (!address || !configured) {
       setFiles([]);
       return;
     }
     setLoading(true);
     try {
-      const ids = (await publicClient.readContract({
+      const ids = (await readClient.readContract({
         address: DRIVE_REGISTRY_ADDRESS as `0x${string}`,
         abi: driveRegistryAbi,
         functionName: "getOwnerFileIds",
@@ -50,7 +51,7 @@ export function useDrive() {
 
       const metas = await Promise.all(
         ids.map(async (id) => {
-          const m = (await publicClient.readContract({
+          const m = (await readClient.readContract({
             address: DRIVE_REGISTRY_ADDRESS as `0x${string}`,
             abi: driveRegistryAbi,
             functionName: "getFile",
@@ -71,7 +72,7 @@ export function useDrive() {
     } finally {
       setLoading(false);
     }
-  }, [address, publicClient, configured]);
+  }, [address, configured]);
 
   useEffect(() => {
     void loadFiles();
