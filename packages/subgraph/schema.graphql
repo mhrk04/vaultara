@@ -1,0 +1,34 @@
+type File @entity(immutable: false) {
+  id: ID! # fileId
+  fileId: BigInt!
+  owner: Bytes!
+  cid: String!
+  name: String!
+  size: BigInt!
+  createdAt: BigInt!
+  deleted: Boolean!
+  grants: [Grant!]! @derivedFrom(field: "file")
+}
+
+type Grant @entity(immutable: false) {
+  id: ID! # fileId-grantee
+  file: File!
+  owner: Bytes!
+  grantee: Bytes!
+  wrappedKeyCid: String!
+  active: Boolean!
+  grantedAt: BigInt!
+  revokedAt: BigInt
+}
+
+# Chronological, append-only feed powering the live Access Log (headline).
+type AccessEvent @entity(immutable: true) {
+  id: ID! # txHash-logIndex
+  kind: String! # REGISTER | GRANT | REVOKE | DELETE
+  fileId: BigInt!
+  owner: Bytes!
+  grantee: Bytes # null for register/delete
+  fileName: String
+  timestamp: BigInt!
+  txHash: Bytes!
+}

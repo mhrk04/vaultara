@@ -1,0 +1,32 @@
+specVersion: 1.0.0
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: DriveRegistry
+    network: base-sepolia
+    source:
+      address: "0xA554d0700a02F1F6186bE1B3ed97D530CE454fb5"
+      abi: DriveRegistry
+      startBlock: 46728984
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - File
+        - Grant
+        - AccessEvent
+      abis:
+        - name: DriveRegistry
+          file: ./abis/DriveRegistry.json
+      eventHandlers:
+        - event: FileRegistered(indexed uint256,indexed address,string,string,uint256,uint64)
+          handler: handleFileRegistered
+        - event: AccessGranted(indexed uint256,indexed address,indexed address,string,uint64)
+          handler: handleAccessGranted
+        - event: AccessRevoked(indexed uint256,indexed address,indexed address,uint64)
+          handler: handleAccessRevoked
+        - event: FileDeleted(indexed uint256,indexed address,uint64)
+          handler: handleFileDeleted
+      file: ./src/mapping.ts

@@ -1,0 +1,17 @@
+{
+  "name": "@decentral-drive/subgraph",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "auth": "graph auth",
+    "deploy": "graph deploy decentral-drive",
+    "create-local": "graph create --node http://localhost:8020/ decentral-drive",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 decentral-drive"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.88.0",
+    "@graphprotocol/graph-ts": "0.35.1"
+  }
+}
