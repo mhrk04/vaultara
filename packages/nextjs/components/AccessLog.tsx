@@ -8,12 +8,37 @@ import { shortenAddress, relativeTime } from "~~/lib/format";
 import { EmptyState } from "~~/components/ui/EmptyState";
 import { Skeleton } from "~~/components/ui/Skeleton";
 
-const meta: Record<AccessEvent["kind"], { icon: React.ReactNode; label: string; color: string }> = {
-  REGISTER: { icon: <FilePlus2 className="h-4 w-4" />, label: "registered", color: "text-accent" },
-  GRANT: { icon: <UserPlus className="h-4 w-4" />, label: "granted access to", color: "text-granted" },
-  REVOKE: { icon: <ShieldOff className="h-4 w-4" />, label: "revoked", color: "text-revoked" },
-  DELETE: { icon: <Trash2 className="h-4 w-4" />, label: "deleted", color: "text-zinc-400" },
+const meta: Record<AccessEvent["kind"], { icon: React.ReactNode; color: string }> = {
+  REGISTER: { icon: <FilePlus2 className="h-4 w-4" />, color: "text-accent" },
+  GRANT: { icon: <UserPlus className="h-4 w-4" />, color: "text-granted" },
+  REVOKE: { icon: <ShieldOff className="h-4 w-4" />, color: "text-revoked" },
+  DELETE: { icon: <Trash2 className="h-4 w-4" />, color: "text-zinc-400" },
 };
+
+/** Phrase an event from the viewer's perspective (owner vs. recipient). */
+function describe(e: AccessEvent, viewer?: string) {
+  const iAmOwner = viewer && e.owner.toLowerCase() === viewer.toLowerCase();
+  const g = e.grantee ? shortenAddress(e.grantee) : "";
+  const owner = shortenAddress(e.owner);
+  switch (e.kind) {
+    case "REGISTER":
+      return <span><span className="text-zinc-400">You</span> registered a file</span>;
+    case "GRANT":
+      return iAmOwner ? (
+        <span><span className="text-zinc-400">You</span> granted access to <span className="text-zinc-200">{g}</span></span>
+      ) : (
+        <span><span className="text-zinc-200">{owner}</span> shared a file with <span className="text-zinc-400">you</span></span>
+      );
+    case "REVOKE":
+      return iAmOwner ? (
+        <span><span className="text-zinc-400">You</span> revoked <span className="text-zinc-200">{g}</span></span>
+      ) : (
+        <span><span className="text-zinc-200">{owner}</span> revoked <span className="text-zinc-400">your</span> access</span>
+      );
+    case "DELETE":
+      return <span><span className="text-zinc-400">You</span> deleted a file</span>;
+  }
+}
 
 export function AccessLog() {
   const { address } = useAccount();
@@ -67,8 +92,7 @@ export function AccessLog() {
             <li key={e.id} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-zinc-800/50">
               <span className={meta[e.kind].color}>{meta[e.kind].icon}</span>
               <span className="flex-1 truncate text-zinc-300">
-                <span className="text-zinc-400">You</span> {meta[e.kind].label}{" "}
-                {e.grantee && <span className="text-zinc-200">{shortenAddress(e.grantee)}</span>}
+                {describe(e, address)}
                 {e.fileName && <span className="text-zinc-200"> · {e.fileName}</span>}
               </span>
               <a
