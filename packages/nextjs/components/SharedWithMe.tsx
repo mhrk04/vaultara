@@ -48,7 +48,13 @@ export function SharedWithMe() {
         abi: driveRegistryAbi,
         functionName: "getFile",
         args: [BigInt(g.file.fileId)],
-      })) as { cid: string; name: string };
+      })) as { cid: string; name: string; exists: boolean };
+
+      if (!meta.exists) {
+        push("error", "The owner has deleted this file.");
+        await load();
+        return;
+      }
 
       await openSharedFile({ cid: meta.cid, wrappedKeyCid: g.wrappedKeyCid, name: meta.name || g.file.name });
       push("success", `Decrypted ${meta.name || g.file.name}`);

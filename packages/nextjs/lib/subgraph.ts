@@ -19,7 +19,7 @@ export interface GrantRow {
   active: boolean;
   grantedAt: string;
   wrappedKeyCid: string;
-  file: { fileId: string; name: string; owner: string };
+  file: { fileId: string; name: string; owner: string; deleted?: boolean };
 }
 
 export function subgraphConfigured(): boolean {
@@ -51,13 +51,16 @@ export async function fetchAccessLog(owner: string): Promise<AccessEvent[]> {
   return data.accessEvents;
 }
 
-/** Active grants a specific grantee currently holds (for "shared with me"). */
+/**
+ * Active grants a specific grantee currently holds (for "shared with me").
+ * Excludes grants whose underlying file has been deleted by the owner.
+ */
 export async function fetchGrantsForGrantee(grantee: string): Promise<GrantRow[]> {
   const data = await query<{ grants: GrantRow[] }>(
     `query($g: Bytes!) {
-       grants(where: { grantee: $g, active: true }, orderBy: grantedAt, orderDirection: desc, first: 50) {
+       grants(where: { grantee: $g, active: true, file_: { deleted: false } }, orderBy: grantedAt, orderDirection: desc, first: 50) {
          id grantee active grantedAt wrappedKeyCid
-         file { fileId name owner }
+         file { fileId name owner deleted }
        }
      }`,
     { g: grantee.toLowerCase() },
