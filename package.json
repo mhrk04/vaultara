@@ -1,8 +1,8 @@
 {
-  "name": "decentral-drive",
+  "name": "vaultara",
   "version": "0.1.0",
   "private": true,
-  "description": "Privacy-first decentralized Drive: client-side encrypted files on IPFS with revocable, ENS-addressed onchain access grants and a live Graph-indexed access log.",
+  "description": "Vaultara — privacy-first decentralized Drive: client-side encrypted files on IPFS with revocable, ENS-addressed onchain access grants and a live Graph-indexed access log.",
   "license": "MIT",
   "workspaces": [
     "packages/nextjs"

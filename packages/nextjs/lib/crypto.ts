@@ -1,5 +1,5 @@
 /**
- * Client-side encryption for DecentralDrive.
+ * Client-side encryption for Vaultara.
  *
  * All file bytes are encrypted in the browser with AES-GCM (256-bit) via the
  * WebCrypto API BEFORE anything is uploaded. The storage provider only ever

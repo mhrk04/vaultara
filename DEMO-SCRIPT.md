@@ -1,11 +1,11 @@
-# Demo Video Script — DecentralDrive (target 3:00, max 4:00)
+# Demo Video Script — Vaultara (target 3:00, max 4:00)
 
 Rules reminder: **your real voice** (no AI voiceover), **720p+**, no music-over-text, don't speed up. Two browser windows/profiles side by side = Account 1 (owner) and Account 2 (recipient). Pre-fund both with Base Sepolia ETH. Edit out tx-confirmation waits.
 
 ---
 
 ## 0:00–0:20 — Hook (keep it short)
-> "This is DecentralDrive — a file drive where the storage provider literally can't read your files, and every share is a revocable, auditable grant recorded onchain. Files are encrypted in the browser, stored on IPFS, and access is controlled by a smart contract on Base."
+> "This is Vaultara — a file drive where the storage provider literally can't read your files, and every share is a revocable, auditable grant recorded onchain. Files are encrypted in the browser, stored on IPFS, and access is controlled by a smart contract on Base."
 
 Show the landing page.
 
@@ -42,7 +42,7 @@ Show email login → wallet appears → the copy-address chip.
 Show the architecture diagram (from README) on a slide (≤4 bullets).
 
 ## 3:40–end — Close
-> "That's DecentralDrive. Encrypted, onchain, auditable. Thanks."
+> "That's Vaultara. Encrypted, onchain, auditable. Thanks."
 
 ---
 

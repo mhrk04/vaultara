@@ -3,7 +3,7 @@ import "./globals.css";
 import { Providers } from "~~/components/Providers";
 
 export const metadata: Metadata = {
-  title: "DecentralDrive — encrypted, onchain-shared storage",
+  title: "Vaultara — encrypted, onchain-shared storage",
   description:
     "Privacy-first decentralized Drive. Files encrypted in your browser, stored on IPFS, with revocable, ENS-addressed access grants recorded onchain.",
 };

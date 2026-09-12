@@ -56,7 +56,7 @@ export function Header() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
           <HardDrive className="h-5 w-5 text-accent" />
-          <span className="text-base font-semibold">DecentralDrive</span>
+          <span className="text-base font-semibold">Vaultara</span>
         </div>
 
         <div className="flex items-center gap-2">

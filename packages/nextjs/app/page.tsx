@@ -44,7 +44,7 @@ export default function Home() {
 
       <div className="mx-auto max-w-5xl px-4 py-8">
         <section className="mb-8">
-          <h1 className="text-xl font-semibold text-zinc-50">Your encrypted drive</h1>
+          <h1 className="text-xl font-semibold text-zinc-50">Your Vaultara drive</h1>
           <p className="mt-1 max-w-2xl text-sm text-zinc-400">
             Files are encrypted in your browser before they ever leave your device. Sharing is a revocable, auditable
             grant recorded onchain and addressed to an ENS name.

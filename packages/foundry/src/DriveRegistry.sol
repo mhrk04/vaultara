@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 /// @title DriveRegistry
-/// @notice Onchain registry for DecentralDrive: records ownership of client-side-encrypted
+/// @notice Onchain registry for Vaultara: records ownership of client-side-encrypted
 ///         files (referenced by IPFS CID) and revocable, auditable access grants.
 /// @dev    Holds NO funds. Solidity is used only for ownership + commitments; the encrypted
 ///         blob and wrapped decryption keys live on IPFS. Every state change emits an event

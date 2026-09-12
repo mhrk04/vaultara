@@ -1,6 +1,6 @@
-# DecentralDrive — Foundry package
+# Vaultara — Foundry package
 
-Onchain registry for DecentralDrive. Holds no funds; records file ownership + revocable, ENS-addressed access grants. Every state change emits an event for The Graph.
+Onchain registry for Vaultara. Holds no funds; records file ownership + revocable, ENS-addressed access grants. Every state change emits an event for The Graph.
 
 ## Setup
 ```bash

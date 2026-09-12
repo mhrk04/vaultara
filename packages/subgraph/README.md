@@ -1,4 +1,4 @@
-# DecentralDrive — subgraph
+# Vaultara — subgraph
 
 Indexes `DriveRegistry` events on Base Sepolia into `File`, `Grant`, and a chronological `AccessEvent` feed that powers the live Access Log.
 

@@ -1,6 +1,6 @@
-# DecentralDrive
+# Vaultara
 
-**Privacy-first decentralized Drive.** Files are encrypted in your browser (Google literally can't read them), the ciphertext lives on IPFS, and every share is a **revocable, auditable, ENS-addressed access grant recorded onchain** — surfaced as a **live access log indexed by The Graph**.
+**Privacy-first decentralized Drive.** Files are encrypted in your browser (the storage provider literally can't read them), the ciphertext lives on IPFS, and every share is a **revocable, auditable, ENS-addressed access grant recorded onchain** — surfaced as a **live access log indexed by The Graph**.
 
 Built for ETHOnline 2026.
 
@@ -8,7 +8,7 @@ Built for ETHOnline 2026.
 
 ## Why it's different from "another IPFS drive"
 
-Most encrypted-drive demos share by silently re-encrypting to a recipient, with no auditable trail. DecentralDrive makes **onchain, revocable sharing the headline**: every grant and revoke is a first-class onchain event, addressed to a human-readable ENS name, and rendered as a two-sided live access log (owner sees "granted to alice.eth", recipient sees "shared with you").
+Most encrypted-drive demos share by silently re-encrypting to a recipient, with no auditable trail. Vaultara makes **onchain, revocable sharing the headline**: every grant and revoke is a first-class onchain event, addressed to a human-readable ENS name, and rendered as a two-sided live access log (owner sees "granted to alice.eth", recipient sees "shared with you").
 
 ## Architecture
 
