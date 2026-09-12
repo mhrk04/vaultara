@@ -9,6 +9,7 @@ import { FileCard } from "~~/components/FileCard";
 import { ShareDialog } from "~~/components/ShareDialog";
 import { AccessLog } from "~~/components/AccessLog";
 import { SharedWithMe } from "~~/components/SharedWithMe";
+import { AutoEnableSharing } from "~~/components/AutoEnableSharing";
 import { EmptyState } from "~~/components/ui/EmptyState";
 import { FileCardSkeleton } from "~~/components/ui/Skeleton";
 import { Button } from "~~/components/ui/Button";
@@ -39,6 +40,7 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       <Header />
+      <AutoEnableSharing />
 
       <div className="mx-auto max-w-5xl px-4 py-8">
         <section className="mb-8">
@@ -71,9 +73,16 @@ export default function Home() {
                 <span className="text-sm text-zinc-400">
                   {files.length} file{files.length === 1 ? "" : "s"}
                 </span>
-                <Button variant="secondary" loading={enabling} onClick={enableSharing}>
-                  <KeyRound className="h-4 w-4" /> Enable sharing
-                </Button>
+                {/* Sharing auto-enables on login; this is a manual re-trigger fallback. */}
+                <button
+                  onClick={enableSharing}
+                  disabled={enabling}
+                  className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 disabled:opacity-50"
+                  title="Re-publish your sharing key (usually automatic)"
+                >
+                  <KeyRound className="h-3.5 w-3.5" />
+                  {enabling ? "Enabling…" : "Sharing enabled"}
+                </button>
               </div>
 
               <UploadZone onUpload={uploadFile} />
