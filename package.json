@@ -1,0 +1,18 @@
+{
+  "name": "decentral-drive",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Privacy-first decentralized Drive: client-side encrypted files on IPFS with revocable, ENS-addressed onchain access grants and a live Graph-indexed access log.",
+  "license": "MIT",
+  "workspaces": [
+    "packages/nextjs"
+  ],
+  "scripts": {
+    "foundry:build": "cd packages/foundry && forge build",
+    "foundry:test": "cd packages/foundry && forge test -vvv",
+    "foundry:fmt": "cd packages/foundry && forge fmt",
+    "chain": "cd packages/foundry && anvil",
+    "start": "cd packages/nextjs && npm run dev",
+    "build": "cd packages/nextjs && npm run build"
+  }
+}
