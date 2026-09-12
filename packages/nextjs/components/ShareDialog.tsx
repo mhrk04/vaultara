@@ -99,8 +99,12 @@ export function ShareDialog({ file, getFileRawKeyAndIv, onClose }: Props) {
           </button>
         </div>
 
-        <p className="mb-3 text-xs text-zinc-500">
+        <p className="mb-1 text-xs text-zinc-500">
           Grants a revocable, onchain-recorded key to the recipient. Enter a wallet address or an ENS name.
+        </p>
+        <p className="mb-3 text-[11px] text-zinc-600">
+          Note: revoking removes future access. A recipient who already downloaded a copy keeps that copy — same as
+          any real sharing system.
         </p>
 
         <div className="flex items-end gap-2">

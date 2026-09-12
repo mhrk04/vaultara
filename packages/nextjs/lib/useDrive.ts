@@ -7,6 +7,7 @@ import { readClient } from "~~/lib/readClient";
 import { encryptBytes, decryptBytes } from "~~/lib/crypto";
 import { getStorage } from "~~/lib/storage";
 import { deriveOwnerKey, ownerKeyMessage, wrapUnderOwnerKey, unwrapUnderOwnerKey, bytesToHex, hexToBytes } from "~~/lib/ownerKey";
+import { getCachedSignature } from "~~/lib/sigCache";
 
 export interface DriveFile {
   fileId: bigint;
@@ -74,6 +75,11 @@ export function useDrive() {
     }
   }, [address, configured]);
 
+  // Attribute IPFS uploads to the connected address (guards the upload proxy).
+  useEffect(() => {
+    void import("~~/lib/pinataStorage").then((m) => m.setStorageCaller(address)).catch(() => {});
+  }, [address]);
+
   useEffect(() => {
     void loadFiles();
   }, [loadFiles]);
@@ -92,7 +98,7 @@ export function useDrive() {
       const cid = await storage.putBytes(ciphertext);
 
       // 3. wrap the file key under the owner's derived key so they can re-open it
-      const signature = await signMessageAsync({ message: ownerKeyMessage });
+      const signature = await getCachedSignature(address, ownerKeyMessage, signMessageAsync);
       const ownerKey = await deriveOwnerKey(signature);
       const ownerWrap = await wrapUnderOwnerKey(ownerKey, rawKey);
       const keyRecord: KeyRecord = { ownerWrap, fileIv: bytesToHex(iv) };
@@ -121,7 +127,8 @@ export function useDrive() {
       if (!keyRecordId) throw new Error("Key record not found on this device");
       const keyRecord = await storage.getJson<KeyRecord>(keyRecordId);
 
-      const signature = await signMessageAsync({ message: ownerKeyMessage });
+      if (!address) throw new Error("Connect a wallet first");
+      const signature = await getCachedSignature(address, ownerKeyMessage, signMessageAsync);
       const ownerKey = await deriveOwnerKey(signature);
       const rawKey = await unwrapUnderOwnerKey(ownerKey, keyRecord.ownerWrap.iv, keyRecord.ownerWrap.data);
 
@@ -136,7 +143,7 @@ export function useDrive() {
       a.click();
       URL.revokeObjectURL(url);
     },
-    [storage, signMessageAsync],
+    [storage, signMessageAsync, address],
   );
 
   const deleteFile = useCallback(
@@ -163,12 +170,13 @@ export function useDrive() {
       const keyRecordId = typeof localStorage !== "undefined" ? localStorage.getItem(`keyrec:${f.cid}`) : null;
       if (!keyRecordId) throw new Error("Key record not found on this device (upload was on another device)");
       const keyRecord = await storage.getJson<KeyRecord>(keyRecordId);
-      const signature = await signMessageAsync({ message: ownerKeyMessage });
+      if (!address) throw new Error("Connect a wallet first");
+      const signature = await getCachedSignature(address, ownerKeyMessage, signMessageAsync);
       const ownerKey = await deriveOwnerKey(signature);
       const rawKey = await unwrapUnderOwnerKey(ownerKey, keyRecord.ownerWrap.iv, keyRecord.ownerWrap.data);
       return { rawKey, fileIvHex: keyRecord.fileIv };
     },
-    [storage, signMessageAsync],
+    [storage, signMessageAsync, address],
   );
 
   return { files, loading, configured, uploadFile, downloadFile, deleteFile, getFileRawKeyAndIv, reload: loadFiles };

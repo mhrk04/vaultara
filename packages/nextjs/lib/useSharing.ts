@@ -5,6 +5,7 @@ import { useAccount, usePublicClient, useWalletClient, useSignMessage } from "wa
 import { driveRegistryAbi, DRIVE_REGISTRY_ADDRESS } from "~~/lib/contract";
 import { getStorage } from "~~/lib/storage";
 import { deriveShareKeypair, shareKeyMessage, wrapKeyForRecipient, unwrapKeyAsRecipient, type Envelope } from "~~/lib/share";
+import { getCachedSignature } from "~~/lib/sigCache";
 import { decryptBytes } from "~~/lib/crypto";
 import { hexToBytes } from "~~/lib/ownerKey";
 
@@ -20,11 +21,12 @@ export function useSharing() {
   const { signMessageAsync } = useSignMessage();
   const storage = getStorage();
 
-  /** Derive this user's sharing keypair from a wallet signature. */
+  /** Derive this user's sharing keypair from a wallet signature (cached per session). */
   const getMyKeypair = useCallback(async () => {
-    const sig = await signMessageAsync({ message: shareKeyMessage });
+    if (!address) throw new Error("connect a wallet");
+    const sig = await getCachedSignature(address, shareKeyMessage, signMessageAsync);
     return deriveShareKeypair(sig);
-  }, [signMessageAsync]);
+  }, [address, signMessageAsync]);
 
   /** Publish my sharing public key to the directory so others can share with me. */
   const registerMyPubkey = useCallback(async () => {

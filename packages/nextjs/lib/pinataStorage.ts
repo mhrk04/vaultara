@@ -9,10 +9,16 @@ const GATEWAY = process.env.NEXT_PUBLIC_PINATA_GATEWAY
   ? `https://${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs`
   : "https://gateway.pinata.cloud/ipfs";
 
+// Set by the app on wallet connect so the upload proxy can attribute/guard requests.
+let callerAddress = "";
+export function setStorageCaller(address: string | undefined) {
+  callerAddress = address ?? "";
+}
+
 async function pin(bytes: Uint8Array): Promise<string> {
   const res = await fetch("/api/ipfs", {
     method: "POST",
-    headers: { "Content-Type": "application/octet-stream" },
+    headers: { "Content-Type": "application/octet-stream", "x-dd-address": callerAddress },
     body: bytes as unknown as BodyInit,
   });
   if (!res.ok) {
