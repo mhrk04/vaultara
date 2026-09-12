@@ -90,7 +90,17 @@ export function useSharing() {
   const openSharedFile = useCallback(
     async (opts: { cid: string; wrappedKeyCid: string; name: string }) => {
       const kp = await getMyKeypair();
-      const envelope = await storage.getJson<Envelope & { fileIv: string }>(opts.wrappedKeyCid);
+      const envelope = await storage.getJson<Envelope & { fileIv?: string }>(opts.wrappedKeyCid);
+
+      if (!envelope || !envelope.ephPub || !envelope.iv || !envelope.data) {
+        throw new Error("This share record is malformed. Ask the owner to re-share the file.");
+      }
+      if (!envelope.fileIv) {
+        throw new Error(
+          "This file was shared with an older version. Ask the owner to revoke and re-share it so the decryption IV is included.",
+        );
+      }
+
       const rawKey = await unwrapKeyAsRecipient(kp.privHex, envelope);
       const ciphertext = await storage.getBytes(opts.cid);
       const plaintext = await decryptBytes(ciphertext, rawKey, hexToBytes(envelope.fileIv));
