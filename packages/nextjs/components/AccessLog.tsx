@@ -47,7 +47,13 @@ export function AccessLog() {
   const configured = subgraphConfigured();
 
   const load = useCallback(async () => {
-    if (!address || !configured) return;
+    // No connected wallet (e.g. after disconnect): clear any previous session's
+    // events so the log doesn't keep showing stale data.
+    if (!address || !configured) {
+      setEvents([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       setEvents(await fetchAccessLog(address));

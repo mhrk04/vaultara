@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useAccount } from "wagmi";
 import { FolderLock, ShieldCheck, KeyRound } from "lucide-react";
 import { Header } from "~~/components/Header";
 import { UploadZone } from "~~/components/UploadZone";
@@ -16,9 +15,10 @@ import { Button } from "~~/components/ui/Button";
 import { useToast } from "~~/components/ui/Toast";
 import { useDrive, type DriveFile } from "~~/lib/useDrive";
 import { useSharing } from "~~/lib/useSharing";
+import { useAuth } from "~~/lib/useAuth";
 
 export default function Home() {
-  const { isConnected } = useAccount();
+  const { loggedIn } = useAuth();
   const { push } = useToast();
   const { files, loading, uploadFile, downloadFile, deleteFile, getFileRawKeyAndIv } = useDrive();
   const { registerMyPubkey } = useSharing();
@@ -59,7 +59,7 @@ export default function Home() {
           </div>
         </section>
 
-        {!isConnected ? (
+        {!loggedIn ? (
           <EmptyState
             icon={<FolderLock className="h-8 w-8" />}
             title="Log in to open your drive"

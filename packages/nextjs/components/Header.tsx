@@ -1,12 +1,12 @@
 "use client";
 
-import { useAccount, useChainId, useSwitchChain, useConnect, useDisconnect } from "wagmi";
-import { usePrivy } from "@privy-io/react-auth";
+import { useChainId, useSwitchChain, useConnect, useDisconnect } from "wagmi";
 import { useState } from "react";
 import { HardDrive, Wallet, LogOut, AlertTriangle, Copy, Check } from "lucide-react";
 import { Button } from "~~/components/ui/Button";
 import { shortenAddress } from "~~/lib/format";
 import { ACTIVE_CHAIN } from "~~/lib/wagmi";
+import { useAuth } from "~~/lib/useAuth";
 
 /** Address chip with a copy button — handy for email logins whose address isn't obvious. */
 function CopyAddress({ address }: { address: string }) {
@@ -28,10 +28,8 @@ function CopyAddress({ address }: { address: string }) {
   );
 }
 
-const PRIVY_ENABLED = !!process.env.NEXT_PUBLIC_PRIVY_APP_ID;
-
 export function Header() {
-  const { address, isConnected } = useAccount();
+  const { loggedIn, ready, address, privyEnabled, privy } = useAuth();
   const chainId = useChainId();
   const { switchChain, isPending: switching } = useSwitchChain();
 
@@ -39,22 +37,19 @@ export function Header() {
   const { connect, connectors, isPending: connecting } = useConnect();
   const { disconnect } = useDisconnect();
 
-  // Privy (used when configured)
-  const privy = usePrivySafe();
-
-  const wrongNetwork = isConnected && chainId !== ACTIVE_CHAIN.id;
+  const wrongNetwork = loggedIn && chainId !== ACTIVE_CHAIN.id;
 
   const handleConnect = () => {
-    if (PRIVY_ENABLED && privy) privy.login();
+    if (privyEnabled && privy) privy.login();
     else if (connectors[0]) connect({ connector: connectors[0] });
   };
   const handleDisconnect = () => {
-    if (PRIVY_ENABLED && privy) privy.logout();
+    if (privyEnabled && privy) privy.logout();
     else disconnect();
   };
 
-  const connected = PRIVY_ENABLED && privy ? privy.authenticated : isConnected;
-  const busy = PRIVY_ENABLED && privy ? !privy.ready : connecting;
+  const connected = loggedIn;
+  const busy = privyEnabled && privy ? !ready : connecting;
 
   return (
     <header className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur">
@@ -81,7 +76,7 @@ export function Header() {
           ) : (
             <Button loading={busy} onClick={handleConnect}>
               <Wallet className="h-4 w-4" />
-              {PRIVY_ENABLED ? "Log in" : "Connect Wallet"}
+              {privyEnabled ? "Log in" : "Connect Wallet"}
             </Button>
           )}
         </div>
@@ -90,12 +85,3 @@ export function Header() {
   );
 }
 
-/** usePrivy throws if no PrivyProvider is mounted; guard it for the fallback path. */
-function usePrivySafe() {
-  try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return usePrivy();
-  } catch {
-    return null;
-  }
-}
