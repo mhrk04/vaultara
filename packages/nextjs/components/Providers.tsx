@@ -21,7 +21,7 @@ export function Providers({ children }: { children: ReactNode }) {
         appId={PRIVY_APP_ID}
         config={{
           appearance: { theme: "dark", accentColor: "#6366f1", logo: undefined },
-          embeddedWallets: { createOnLogin: "users-without-wallets" },
+          embeddedWallets: { ethereum: { createOnLogin: "users-without-wallets" } },
           defaultChain: ACTIVE_CHAIN,
           supportedChains: [baseSepolia],
           loginMethods: ["email", "wallet"],
