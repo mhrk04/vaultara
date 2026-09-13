@@ -15,6 +15,33 @@ export const runtime = "nodejs";
 const PINATA_JWT = process.env.PINATA_JWT;
 const DIRECTORY_NAME = "decentral-drive-pubkey-directory";
 
+// Same-origin + lightweight rate limit for the public write endpoint.
+const WINDOW_MS = 60_000;
+const MAX_PER_WINDOW = 10;
+const hits = new Map<string, { count: number; resetAt: number }>();
+
+function rateLimited(key: string): boolean {
+  const now = Date.now();
+  const entry = hits.get(key);
+  if (!entry || now > entry.resetAt) {
+    hits.set(key, { count: 1, resetAt: now + WINDOW_MS });
+    return false;
+  }
+  entry.count += 1;
+  return entry.count > MAX_PER_WINDOW;
+}
+
+function isSameOrigin(req: NextRequest): boolean {
+  const origin = req.headers.get("origin");
+  if (!origin) return true;
+  const host = req.headers.get("host");
+  try {
+    return new URL(origin).host === host;
+  } catch {
+    return false;
+  }
+}
+
 interface Directory {
   [address: string]: string; // lowercased address -> pubkey hex
 }
@@ -44,6 +71,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   if (!PINATA_JWT) return NextResponse.json({ error: "server not configured" }, { status: 500 });
+  if (!isSameOrigin(req)) return NextResponse.json({ error: "cross-origin not allowed" }, { status: 403 });
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (rateLimited(ip)) return NextResponse.json({ error: "rate limit exceeded" }, { status: 429 });
   try {
     const { address, pubkey } = (await req.json()) as { address?: string; pubkey?: string };
     if (!address || !pubkey || !/^0x[a-fA-F0-9]{40}$/.test(address) || !/^[a-f0-9]{66}$/.test(pubkey)) {
