@@ -4,6 +4,8 @@
 
 Built for ETHOnline 2026.
 
+**🔗 Live demo: https://vaultara-nextjs.vercel.app**
+
 > ⚠️ Hackathon / reference implementation. Deployed to Base Sepolia (testnet). All code is sample-grade and needs a security review before any production use.
 
 ## Why it's different from "another IPFS drive"
@@ -35,6 +37,9 @@ Browser (encrypt AES-GCM) ──► IPFS/Pinata (ciphertext only)
 ## Deployed
 - **DriveRegistry (Base Sepolia):** [`0xA554d0700a02F1F6186bE1B3ed97D530CE454fb5`](https://sepolia.basescan.org/address/0xa554d0700a02f1f6186be1b3ed97d530ce454fb5) (verified)
 - **Subgraph:** `https://api.studio.thegraph.com/query/1760145/decentral-drive/0.98.1`
+- **Live app (Vercel):** https://vaultara-nextjs.vercel.app
+
+See [`DEPLOY.md`](./DEPLOY.md) for deployment steps, env vars, and the live security check.
 
 ## Run locally
 
